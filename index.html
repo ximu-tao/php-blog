@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+
+    <!--    <meta http-equiv="refresh" content="2">-->
+    <!-- 控制自动刷新 , 方便调试 UI    -->
+
+    <link rel="stylesheet" href="css/bootstrap.css"/>
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/bootstrap.bundle.js"></script>
+    <script src="js/jquery.sha1.js"></script>
+
+
+    <script src="js/myjs.js"></script>
+    <title>XX博客</title>
+</head>
+<body>
+
+
+<!-- 模态框 -->
+<div class="modal fade" id="user-data-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">用户资料</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="container">
+                <div id="user-data-success" class="alert alert-success" style="display: none;"></div>
+                <div  id="user-data-info" class="alert alert-info" style="display: none;"></div>
+                <div  id="user-data-warning" class="alert alert-warning" style="display: none;"></div>
+                <div  id="user-data-danger" class="alert alert-danger" style="display: none;"></div>
+                <div  id="user-data-primary" class="alert alert-primary" style="display: none;"></div>
+            </div>
+
+            <div class="modal-body">
+                <!--                 : 显示用户的资料-->
+
+                <div style="position: relative;border: 5px solid lightblue;width: 150px;height:150px;margin: 5px auto;border-radius: 50%;">
+                    <img src="./upload/avatar/default.jpg" class=" rounded-circle" style="width: 140px;height: 140px;left:0;top: 0;"
+                         id="user-avatar-img">
+                    <input type="file" id="user-avatar" name="avatar" accept="image/jpeg,image/png,image/gif"
+                           style="width: 100%;height:100%;opacity: 0;position: absolute;left:0;top: 0;"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-name" class="col-sm-2 control-label">用户名</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="user-data form-control"  id="user-name" placeholder="用户名">
+                    </div>
+                </div>
+
+                <div class="form-group user-data" id="unlog-btn"  >
+                    <div class="col-sm-10">
+                        <input type="button" class="user-data form-control" value="退出登录">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="alter-user-data-btn" class="btn btn-primary" style="display: none;" >修改资料</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    let userName = $('#user-name');
+    let unlogBtn = $('#unlog-btn');
+    let userAvatarImg = $('#user-avatar-img');
+    let alterUserDataBtn = $('#alter-user-data-btn');
+
+
+    unlogBtn.click(function () {
+        //     : 退出登录并刷新
+
+        $.ajax({
+            type: 'post',
+            url: "./api/unlog.php",
+            data: { 'a' : 1 } ,
+            success: function (result) {
+                console.log( '退出登录' , result);
+                if (result['code'] == 200) {
+
+                    alert('user-data-success')(10);
+                    setTimeout(function () {
+                        window.location.reload();
+                    } , 2000 );
+
+
+                }
+            },
+            dataType: 'json'
+        });
+
+    })
+
+    alterUserDataBtn.click(function () {
+        //    todo : 将表单改为可修改
+        alert('user-data-warning')(9);
+        return;
+
+            // userName.removeAttr("disabled")
+    })
+
+    function showUserData( userid ) {
+        console.log( '要显示' , userid , '的资料' );
+        $.ajax({
+            type: 'post',
+            url: "./api/get/getuserdata.php",
+            data: { 'id' : userid },
+            success: function (result) {
+                console.log( '用户资料' , result);
+                if (result['code'] == 200) {
+
+                    userAvatarImg.attr('src' , "./upload/avatar/"+ result['data']['avatar'] );
+                    userName.val( result['data']['name'] );
+                }else{
+
+                }
+            },
+            dataType: 'json'
+        });
+
+
+
+        userAvatar = $('#userAvatar');
+
+        console.log( userAvatar.attr( 'userid' ) )
+        userName.attr("disabled","disabled")
+        console.log( '有修改用户信息的权限' , userAvatar.attr('authority' )  );
+        if ( userAvatar.attr( 'userid') == userid ){
+            unlogBtn.show();
+            alterUserDataBtn.show();
+
+        }else{
+            unlogBtn.hide();
+            alterUserDataBtn.hide();
+        }
+
+        if ( userAvatar.attr('authority' ) & 2 ){
+            alterUserDataBtn.show();
+        }
+
+        // userName.val();
+
+
+
+        let userDataModal = $('#user-data-modal');
+
+        userDataModal.modal('show')
+
+    }
+
+
+
+
+
+</script>
+
+<!--导航栏-->
+<div class="container">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light ">
+        <a class="navbar-brand" href="#">XX博客</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+            <ul class="navbar-nav mr-5">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">主页</a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link" href="./notice.html">公告</a>
+                </li>
+
+            </ul>
+
+            <form class="form-inline my-2 my-lg-0 ml-5 mr-auto pl-5">
+                <input class="form-control mr-sm-2" type="search" id="searchblog" placeholder="搜索博客"
+                       aria-label="Search">
+<!--                <input class="form-control mr-sm-2" type="date" id="searchdate" placeholder="搜索博客" aria-label="Search">-->
+                <button class="btn btn-outline-success my-2 " id="blog-search" >搜索</button>
+            </form>
+<!--            : 搜索博客 -->
+            <script>
+                $('#blog-search').click(function (event) {
+                    event.preventDefault();
+
+                    let searchBlog = $('#searchblog');
+
+                    refresh( { 'find' : searchBlog.val() , 'page' : 1 } );
+                })
+
+
+
+            </script>
+
+            <div id="hrtrdsrth" style="display: none;">
+
+                <button type="button" class="btn m-1 btn-outline-primary" data-toggle="modal" data-target="#login-modal">
+                    登录
+                </button>
+
+                <button type="button" class="btn btn-primary m-1" data-toggle="modal" data-target="#signup-modal">
+                    注册
+                </button>
+            </div>
+
+            <div id="ehrereh" style="display: none;">
+                <button type="button" class="btn btn-primary m-1" data-toggle="modal" data-target="#publishBlogModal">
+                    发布博客
+                </button>
+                <img id="userAvatar" style="cursor: pointer;width:50px;" class=" rounded-circle" >
+            </div>
+
+
+
+
+            <!--          : 用户未登录时, 这里显示登陆和注册按钮,  用户已登录时, 这里显示头像和发布博客按钮  -->
+            <script>
+                $.ajax({
+                    type: 'post',
+                    url: "./api/get/getuserdata.php",
+                    data: { 'a' : 1},
+                    success: function (result) {
+                        console.log( '用户资料' , result);
+                        if (result['code'] == 200) {
+
+                            let userAvatar = $('#userAvatar');
+
+                            userAvatar.attr( 'src' , "./upload/avatar/"+ result['data']['avatar']);
+                            userAvatar.attr( 'alt' ,  result['data']['name']);
+                            userAvatar.attr('authority' , result['data']['authority'] );
+                            userAvatar.attr( 'userid' ,  result['data']['id']);
+
+                            userAvatar.click(function () {
+                                showUserData( result['data']['id'] )
+                            })
+
+                            $('#ehrereh').show();
+
+                        }else{
+                            $('#hrtrdsrth').show();
+                        }
+                    },
+                    dataType: 'json'
+                });
+
+
+
+            </script>
+
+
+        </div>
+    </nav>
+</div>
+
+<!--提示框-->
+<div class="container" >
+    <div id="publish-blog-success" class="alert alert-success" style="display: none;">
+    </div>
+    <div  id="alert-info" class="alert alert-info" style="display: none;">
+        <strong>信息!</strong> 请注意这个信息。
+    </div>
+    <div  id="alert-warning" class="alert alert-warning" style="display: none;">
+        <strong>警告!</strong> 设置警告信息。
+    </div>
+    <div  id="alert-danger" class="alert alert-danger" style="display: none;">
+        <strong>错误!</strong> 失败的操作
+    </div>
+    <div  id="alert-primary" class="alert alert-primary" style="display: none;">
+        <strong>首选!</strong> 这是一个重要的操作信息。
+    </div>
+    <div id="alert-secondary"  class="alert alert-secondary" style="display: none;">
+        <strong>次要的!</strong> 显示一些不重要的信息。
+    </div>
+    <div  id="alert-dark" class="alert alert-dark" style="display: none;">
+        <strong>深灰色!</strong> 深灰色提示框。
+    </div>
+    <div id="alert-light" class="alert alert-light" style="display: none;">
+        <strong>浅灰色!</strong>浅灰色提示框。
+    </div>
+</div>
+
+<!--博客列表-->
+<div  class="container">
+    <div id="accordion">
+    </div>
+</div>
+
+<script>
+    function generateContent(l) {
+        //     : 生成内容列表
+        // console.log( 'generateContent 被调用');
+        var accordion = $('#accordion')
+        accordion.empty();
+        // console.log( l );
+
+        let find = getURLString('find');
+        console.log( '要高亮的文字' ,  find );
+
+        for (const le of l) {
+        // for (let i = 0; i < l.length; i++) {
+        //     let le = l[i];
+
+            //   : 高亮显示搜索内容
+
+
+
+            le['title'] = le['title'].replace(find, '<span style="color:#ff6700;">' + find + '</span>');
+            le['content'] = le['content'].replace(find, '<span style="color:#ff6700;">' + find + '</span>');
+
+            let html = ` <div class="card">
+            <div class="card-header">
+                <a class="card-link" data-toggle="collapse" href="#collapse${le['id']}">
+                    ${le['title']}
+                </a>
+            </div>
+            <div id="collapse${le['id']}" class="collapse show">
+                <div class="card-body">
+                    <div class="media">
+                    <img class="mr-3 rounded-circle avatar"
+                        style="width:50px;cursor: pointer;"
+                        alt="${le['name']}"
+                        onclick="showUserData( ${ le['publisher_id']} )"
+                        src="./upload/avatar/${le['avatar']}">
+                    <div class="media-body">
+                    <h5 class="mt-0">${le['name']}:</h5>
+                    ${le['content']}
+                  </div>
+</div>
+                </div>
+            </div>
+        </div>`;
+
+            accordion.append(html);
+            // console.log( le );
+        }
+    }
+
+
+</script>
+
+<!--页码-->
+<div class="container pagination-centered ">
+    <ul class="pagination" id="pagination">
+    </ul>
+</div>
+
+<script>
+
+
+    function generatePageNumber(cp, ps) {
+        // console.log(cp)
+        // console.log(ps)
+        var pagination = $('#pagination');
+
+        pagination.empty();
+
+        pagination.attr('cp', cp);
+        pagination.attr('ps', ps);
+
+        let start = 1;
+        let end = ps;
+
+
+        html = `<li class="page-item ${ cp <= 1 ? 'disabled' : ''}"><a class="page-link"  page='-'  href="#">上一页</a></li>`;
+        pagination.append(html);
+        if (ps > 10) {
+            console.log( 'cp' , cp);
+            // start = cp-5;
+            // end = cp+5;
+
+            // console.log( 'end - cp', end - cp );
+            if ( ( end - cp) < 5 ) {
+                // start = cp  5;
+                start = Math.max(  ps-10 , 1 );
+            }else if ( cp < 6 ){
+                end = Math.min( ps,  10 );
+            }else {
+                start = parseInt( cp)  -5;
+                end = parseInt( cp)+4;
+            }
+
+            console.log( end );
+        }
+
+        // console.log('start', start);
+        // console.log('end', end);
+        for (let i = start; i <= end; i++) {
+            // console.log(  '生成页码' , i );
+            html = `<li class="page-item ${cp == i ? 'active disabled' : ''}"><a class="page-link btn" href="#"   page="${i}" >${i}</a></li>`;
+
+            pagination.append(html)
+        }
+
+
+        html = `<li class="page-item ${cp >= ps ? 'disabled' : ''}"><a class="page-link"   page='+'  href="#">下一页</a></li>`;
+        pagination.append(html);
+
+
+        $('.page-link').bind("click", function (event) {
+            event.preventDefault();
+            let p = $(event.target).attr('page');
+            // console.log(p);
+
+            jump(p);
+
+        });
+
+
+    }
+
+    function jump(p) {
+        //     : 跳转到指定页
+
+
+        if (p === '+') {
+            p = parseInt($('#pagination').attr('cp')) + 1;
+        }
+
+        if (p === '-') {
+            p = parseInt($('#pagination').attr('cp')) - 1;
+        }
+
+        // console.log('跳转到', p);
+
+        find = $('#searchblog').val();
+        if ( find == undefined){
+            find = ''
+        }
+        refresh( { 'find' : find , 'page' : p } );
+
+
+    }
+
+</script>
+
+
+<script>
+    $(function () {
+        refresh2({'page': 1});
+    });
+</script>
+
+
+<script>
+
+    window.onhashchange = function () {
+
+        data = JSON.parse( unescape(window.location.hash ).substring(1) );
+        data['find'] = decodeURI( data['find'] );
+        if ( data['find'] == undefined){
+            data['find'] = ""
+        }
+        console.log( data  );
+        // refresh( data  );
+        refresh2( data );
+
+    }
+
+    function refresh( data ) {
+        // flag = false;
+        window.location.hash = escape( JSON.stringify( data ) ) ;
+
+        // refresh2( data );
+    }
+
+    function refresh2(data) {
+
+        // function infun( name ) {
+        //     if ( data[name] ==null ){
+        //         data[name] = getURLString( name );
+        //     }
+        // }
+        // infun('find')
+        // infun('publisher_id')
+        // infun('publish_time')
+        // infun('page')
+
+        // console.log( '地址栏参数 find' , getURLString( 'find' ) );
+
+        // var new_href = "";
+        // // new_href = window.location.href;
+        // new_href = new_href.split('?')[0];
+        //
+        // new_href = new_href + '?';
+
+        if ( data['find'] == "undefined"){
+            data['find'] = "";
+        }
+
+        // for (const dataKey in data) {
+        //
+        //     if ( data[dataKey] == null){
+        //         continue;
+        //     }
+        //
+        //     new_href += `${dataKey}=${data[dataKey]}&`;
+        // }
+
+        // window.history.pushState( {} , document.title , new_href  );
+
+        // window.location.hash = escape( JSON.stringify( data ) ) ;
+        // flag = false;
+
+        console.log( '提交的数据', data );
+        // console.log( new_href );
+
+        $.ajax({
+            type: 'post',
+            url: "./api/get/getbloglist.php",
+            data: data,
+            success: function (result) {
+                console.log( '获取博客列表响应' , result);
+                if (result['code'] == 200) {
+                    if ( typeof result['data']['find'] == "string" ){
+                        $('#searchblog').val(result['data']['find']);
+                    }else {
+                        $('#searchblog').val('');
+                    }
+                    if ( typeof result['data']['publish_time'] == "string" ){
+                        $('#searchdate').val(result['data']['publish_time']);
+                    }
+
+
+
+
+                    generateContent(result['data']['bloglist']);
+                    generatePageNumber(result['data']['pagenum'], result['data']['pagesnum']);
+
+                    $('html,body').animate({ scrollTop: 0 }, 500);
+                }else{
+                //    todo : 获取博客列表失败时的处理
+                }
+            },
+            dataType: 'json'
+        });
+    }
+
+</script>
+
+
+
+<!-- 登录模态框 -->
+<div class="modal fade" id="login-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- 模态框头部 -->
+            <div class="modal-header">
+                <h4 class="modal-title">登录</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="container">
+                <div  id="login-info" class="alert alert-info" style="display: none;"></div>
+                <div  id="login-success" class="alert alert-success" style="display: none;"></div>
+                <div  id="login-danger" class="alert alert-danger" style="display: none;"></div>
+            </div>
+
+            <!-- 模态框主体 -->
+            <div class="modal-body">
+<!--                 : 登录表单 , 登录过程提示 -->
+                <div class="form-group">
+                    <label for="login-name" class="col-sm-2 control-label">用户名</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="login-name" placeholder="用户名">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-pw" class="col-sm-2 control-label">密码</label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="login-pw" placeholder="请输入密码">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 模态框底部 -->
+            <div class="modal-footer">
+                <button type="button" id="loginBtn" class="btn btn-primary" >登录</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            </div>
+
+            <script>
+                $('#loginBtn').click(function () {
+                //   :  登录逻辑 , 获取表单 , 提交登录
+                    let loginInfo = alert('login-info');
+                    // loginInfo(1);
+                    let userName = $('#login-name').val();
+                    let userPw = $('#login-pw').val();
+                    // console.log('用户登录');
+                    // console.log(userName);
+                    if ( userPw == '' || userName == '' ){
+                        loginInfo(5);
+                        return;
+                    }
+
+                    if ( !checkUserNameFun( userName ) ){
+                        loginInfo(1);
+                        return;
+                    }
+                    // console.log('用户登录');
+                    let data = {
+                        'uname' : userName,
+                        'upw' : shaUserPw( userPw )
+                    }
+
+                    $.ajax({
+                        type: 'post',
+                        url: "./api/login.php",
+                        data: data,
+                        success: function (result) {
+                            console.log( '登录响应' , result);
+                            if (result['code'] == 200) {
+                                console.log( '登录成功提示' );
+                                alert('login-success')( 8 );
+
+                                setTimeout(function () {
+                                    signupModal.modal('hide');
+                                    window.location.reload();
+                                } , 2000 )
+                            }else{
+                                alert('login-danger')(7);
+                            }
+                        },
+                        dataType: 'json'
+                    });
+                })
+
+            </script>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- 注册模态框 -->
+<div class="modal fade" id="signup-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- 模态框头部 -->
+            <div class="modal-header">
+                <h4 class="modal-title">注册</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div id="sign-danger" class="alert alert-danger" style="display: none;">
+
+            </div>
+
+
+            <div class="container">
+                <div  id="signup-info" class="alert alert-info" style="display: none;">
+                    <strong>信息!</strong> 。
+                </div>
+                <div  id="signup-success" class="alert alert-success" style="display: none;">
+                    <strong>信息!</strong> 。
+                </div>
+            </div>
+
+            <!-- 模态框主体 -->
+            <div class="modal-body">
+                <!--                 : 注册, 头像上传-->
+                <div style="position: relative;border: 5px solid lightblue;width: 150px;height:150px;margin: 5px auto;border-radius: 50%;">
+                    <img src="./upload/avatar/default.jpg" class=" rounded-circle" style="width: 140px;height: 140px;left:0;top: 0;"
+                         id="avatar_img">
+                    <input type="file" id="signup-avatar" name="avatar" accept="image/jpeg,image/png,image/gif"
+                           style="width: 100%;height:100%;opacity: 0;position: absolute;left:0;top: 0;"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupname" class="col-sm-2 control-label">用户名</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="signupname" placeholder="用户名">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signuppw" class="col-sm-2 control-label">密码</label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="signuppw" placeholder="请输入密码">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signuppw2" class="col-sm-2 control-label">确认密码</label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="signuppw2" placeholder="确认密码">
+                    </div>
+                </div>
+
+                <script>
+                    $("#signup-avatar").change(function () {
+                        var file = $(this)[0].files[0];
+                        var reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = function () {
+                            $("#avatar_img").attr("src", this.result);
+                        }
+                    });
+                </script>
+
+            </div>
+
+            <!-- 模态框底部 -->
+            <div class="modal-footer">
+                <button type="button" id="sign-btn" class="btn btn-primary">注册</button>
+                <button type="button" id="sign-cancel" class="btn btn-secondary" >取消</button>
+            </div>
+
+            <script>
+
+                let signupModal = $('#signup-modal');
+
+                var checkUserName = /^[A-Za-z0-9]+$/;
+
+                $('#sign-btn').click(function (){
+                    console.log( '用户注册');
+                    let userName = $('#signupname').val();
+                    let userPw = $('#signuppw').val();
+                    let userPw2 = $('#signuppw2').val();
+
+                    let alert_ = alert( 'signup-info' );
+
+
+                    //  : 检查用户名是否符合格式要求
+                    if ( !checkUserNameFun( userName ) ){
+                        alert_(1);
+                        return;
+                    }
+
+                    if ( userPw == '' ){
+                        alert_(5);
+                        return;
+                    }
+
+                    //  : 检查密码和确认密码是否一致
+
+                    if (  userPw != userPw2 ){
+                        alert_(2)
+                        return
+                    }
+
+
+                    var files = $('#signup-avatar').prop('files');
+                    let data = new FormData();
+                    data.append('avatar', files[0]);
+
+                    let newname = '';
+                    // 上传头像
+                    $.ajax({
+                        url: './api/upload/avatar.php',
+                        type: 'POST',
+                        data: data,
+                        cache: false,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            console.log(result);
+                            if ( result['code'] == 200){
+                                newname = result['data']['newname']
+                                console.log( '头像上传成功');
+                            }else if ( result['code'] == 407 ){
+                                newname = 'default.jpg';
+                            }else{
+                                //    todo : 头像上传失败处理
+                                console.log( '头像上传失败');
+                            }
+
+                            //  : 密码需要加密后截取前 20 位提交
+                            // let data2 = ;
+                            // console.log( '注册数据' , data2 );
+
+                            data = {
+                                'uname' : userName,
+                                // 'upw' : userPw,
+                                'upw' : shaUserPw( userPw ),
+                                'avatar' : newname
+                            };
+                            // console.log( data );
+                            $.ajax({
+                                type: 'post',
+                                url: "./api/signup.php",
+                                data: data,
+                                success: function (result) {
+                                    console.log( '注册响应' , result);
+                                    if (result['code'] == 200) {
+                                        alert('signup-success')( 6 );
+                                    //    注册成功提示
+                                        setTimeout(function () {
+                                            signupModal.modal('hide');
+                                            window.location.reload();
+                                        } , 2000 )
+
+
+                                    }else{
+                                        //    注册失败提示
+                                        alert('signup-info')(13);
+
+
+                                    }
+                                },
+                                dataType: 'json'
+                            });
+                        },
+                        dataType: 'json'
+                    });
+
+                });
+
+
+                $('#sign-cancel').click(function () {
+                //    取消注册的逻辑
+                    signupModal.modal('hide');
+                })
+
+
+            </script>
+
+        </div>
+    </div>
+</div>
+
+<!-- 模态框 -->
+<div class="modal fade" id="publishBlogModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- 模态框头部 -->
+            <div class="modal-header">
+                <h4 class="modal-title">发布博客</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- 模态框主体 -->
+            <div class="modal-body">
+                <!--                 : 博客标题与内容 -->
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="title" class="col-sm-2 control-label">标题</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="title" name="title" placeholder="博客标题">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea class="form-control" rows="3" id="content"></textarea>
+                    </div>
+                </form>
+
+
+            </div>
+
+            <!-- 模态框底部 -->
+            <div class="modal-footer">
+                <button id="publishblogbtn" type="button" class="btn btn-primary">发布</button>
+                <button id="publishblogcancel" type="button" class="btn btn-secondary">取消</button>
+            </div>
+
+
+<script>
+
+    $('#publishblogbtn').click(
+        function () {
+            //  : 发布博客
+
+            blogtitle = $('#title').val();
+            blogcontent = $('#content').val();
+
+            data = {
+                'title' : blogtitle,
+                'content' : blogcontent
+            }
+
+
+            let alert_ = alert('publish-blog-success');
+
+            $.ajax({
+                type: 'post',
+                url: "./api/publish/publishblog.php",
+                data: data,
+                success: function (result) {
+                    console.log(result);
+                    if (result['code'] == 200) {
+
+                        alert_(4);
+                        $('#publishBlogModal').modal('hide');
+                        $('#title').val('');
+                        $('#content').val('');
+
+                        setTimeout(
+                            function (){
+                                // window.location.reload();
+                                location.href = './';
+                            },1500
+                        )
+
+
+                    }else{
+                    //    todo : 发布博客失败时的处理
+                    }
+                },
+                dataType: 'json'
+            });
+
+        }
+    )
+
+    $('#publishblogcancel').click(
+        function () {
+            // todo : 取消发布博客, 询问是否保留草稿
+            $('#publishBlogModal').modal('hide');
+        }
+    )
+</script>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // console.log('abcd');
+    var signupName = $('#signupname');
+    var signupInfo = alert('signup-info');
+    signupName  .blur(function () {
+        console.log('signupname失去焦点');
+        $.ajax({
+            type: 'post',
+            url: "./api/check/hasname.php",
+            data: { 'uname' : signupName.val() },
+            success: function (result) {
+                console.log(result);
+                if (result['code'] == 402) {
+                    signupInfo(12);
+                    $('#sign-btn').attr("disabled","disabled");
+                }else{
+                    $('#sign-btn').removeAttr("disabled");
+                }
+            },
+            dataType: 'json'
+        });
+    })
+    
+    
+</script>
+
+
+
+<script>
+    var alertDanger = alert('alert-danger');
+    $(function () {
+        $.ajax({
+            type: 'post',
+            url: "./api/check/checkserver.php",
+            data: { 'a' : 1 },
+            success: function (result) {
+                console.log(result);
+                if ( result['data']['status'] != 0) {
+                    alertDanger(15 , 60000 );
+                }
+            },
+            error : function (){
+                console.log('连接服务器失败');
+                alertDanger(14 , 60000 );
+            },
+            dataType: 'json'
+        });
+    })
+
+
+</script>
+
+
+</body>
+</html>
