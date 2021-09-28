@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../css/bootstrap.css"/>
+    <script src="../../js/jquery.js"></script>
+    <script src="../../js/bootstrap.js"></script>
+    <script src="../../js/bootstrap.bundle.js"></script>
+    <script src="../../js/jquery.sha1.js"></script>
+</head>
+<body>
+
+
+<input type="button" class="btn btn-info" id="agrgsadf" value="按钮">
+
+<div class="container">
+    <h2>提示框</h2>
+    <p>提示框可以使用 .alert 类, 后面加上指定特定意义的颜色类来实现:</p>
+    <div id="A" class="alert alert-success" style="display: none;">
+        <strong>成功!</strong> 指定操作成功提示信息。
+    </div>
+    <div  id="B" class="alert alert-info" style="display: none;">
+        <strong>信息!</strong> 请注意这个信息。
+    </div>
+    <div  id="C" class="alert alert-warning" style="display: none;">
+        <strong>警告!</strong> 设置警告信息。
+    </div>
+    <div  id="D" class="alert alert-danger" style="display: none;">
+        <strong>错误!</strong> 失败的操作
+    </div>
+    <div  id="E" class="alert alert-primary" style="display: none;">
+        <strong>首选!</strong> 这是一个重要的操作信息。
+    </div>
+    <div id="F"  class="alert alert-secondary" style="display: none;">
+        <strong>次要的!</strong> 显示一些不重要的信息。
+    </div>
+    <div  id="G" class="alert alert-dark" style="display: none;">
+        <strong>深灰色!</strong> 深灰色提示框。
+    </div>
+    <div id="H" class="alert alert-light" style="display: none;">
+        <strong>浅灰色!</strong>浅灰色提示框。
+    </div>
+</div>
+
+
+<script>
+
+    $(function () {
+            $('#agrgsadf').click(
+                function () {
+                    console.log('A');
+
+                    let a =  $('.alert');
+
+
+                    a.show( 500 );
+
+                    setTimeout(function () {
+                        a.hide( 500 );
+                    } , 1500 )
+                }
+            )
+        }
+    )
+
+
+</script>
+
+
+<script>
+
+
+</script>
+
+</body>
+</html>
